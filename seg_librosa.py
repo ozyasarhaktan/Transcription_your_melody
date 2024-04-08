@@ -29,13 +29,10 @@ def seg_librosa():
 
     # when notes start - when peaks is
     hop_length = 256  # 100 - 300
-    nutyLib['onset_env'] = librosa.onset.onset_strength(y, sr=sr, hop_length=hop_length)
+    nutyLib['onset_env'] = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop_length, n_fft=2048, aggregate=np.median)
 
-    nutyLib['onset_samples'] = librosa.onset.onset_detect(y, sr=sr, units='samples',
-                                                          hop_length=hop_length, backtrack=False,
-                                                          pre_max=20, post_max=20,
-                                                          pre_avg=100, post_avg=100,  # 100 100
-                                                          delta=0.05, wait=0)  # 0.1
+    nutyLib['onset_samples'] = librosa.onset.onset_detect(y=y, sr=sr, hop_length=hop_length, units='samples'
+                                                          )
 
     # sample, but with boundaries
     nutyLib['onset_boundaries'] = np.concatenate([[0], nutyLib['onset_samples'], [len(y)]])
@@ -52,7 +49,7 @@ def seg_librosa():
     plt.xlim(0, len(nutyLib['onset_env']))
 
     plt.subplot(212)
-    librosa.display.waveplot(y)
+    librosa.display.AdaptiveWaveplot(y=y, steps=1, envelope=nutyLib['onset_env'], times=nutyLib['onset_times'], sr=sr)
     plt.vlines(nutyLib['onset_times'], -0.5, 0.5, color='#973333')
     plt.ylabel('Amplitude', fontsize=13)
     plt.xlabel('Time [s]', fontsize=13)
